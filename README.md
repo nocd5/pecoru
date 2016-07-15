@@ -1,2 +1,1 @@
-# pecoru
-pecoる
+# pecoる

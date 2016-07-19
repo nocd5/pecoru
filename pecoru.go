@@ -1,7 +1,6 @@
 package pecoru
 
 import (
-	"bytes"
 	"fmt"
 	"os"
 	"strings"
@@ -22,13 +21,13 @@ func Select(items []string) <-chan Content {
 	hasIgnoreableError := false
 	var otherError error = nil
 
-	r, w, err := os.Pipe()
-	if err != nil {
+	cli := peco.New()
+	if r, w, err := os.Pipe(); err == nil {
+		fmt.Fprintln(w, strings.Join(items, "\n"))
+		cli.Stdin = r
+	} else {
 		otherError = err
 	}
-	fmt.Fprintln(w, strings.Join(items, "\n"))
-	cli := peco.New()
-	cli.Stdin = r
 
 	ctx := context.Background()
 	if err := cli.Run(ctx); err != nil {
@@ -50,16 +49,10 @@ func Select(items []string) <-chan Content {
 		}
 	}
 
-	buf := bytes.Buffer{}
-	idx := -1
 	var contents []Content
 	if !hasIgnoreableError && otherError == nil {
 		for line := range cli.ResultCh() {
-			buf.Reset()
-			idx = -1
-			buf.WriteString(line.Output())
-			idx = int(line.ID())
-			contents = append(contents, Content{string(buf.Bytes()), idx, nil})
+			contents = append(contents, Content{line.Output(), int(line.ID()), nil})
 		}
 	}
 

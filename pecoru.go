@@ -1,7 +1,6 @@
 package pecoru
 
 import (
-	"fmt"
 	"os"
 	"strings"
 
@@ -23,7 +22,7 @@ func Select(items []string) <-chan Content {
 
 	cli := peco.New()
 	if r, w, err := os.Pipe(); err == nil {
-		fmt.Fprintln(w, strings.Join(items, "\n"))
+		w.WriteString(strings.Join(items, "\n") + "\n")
 		cli.Stdin = r
 	} else {
 		otherError = err

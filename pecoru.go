@@ -59,10 +59,11 @@ func Select(items []string) <-chan Content {
 	ch := make(chan Content)
 	go func() {
 		if otherError != nil {
-			ch <- Content{"", -1, otherError}
-		}
-		for _, content := range contents {
-			ch <- content
+			ch <- Content{string(rune(0)), -1, otherError}
+		} else {
+			for _, content := range contents {
+				ch <- content
+			}
 		}
 		close(ch)
 	}()
